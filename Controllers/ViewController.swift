@@ -1,8 +1,11 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    //桁数
+    //titleForRowをStringで返さないといけないためIntではなくStringで初期化
     private let nums:[String] = ["4","5","6","7","8","9","10","11","12","13","14","15"]
+    //パスワードの元のデータ
     private let passwordLetters1:NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     private let passwordLetters2:NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     private let passwordLetters3:NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'()*+-./:;<=>?@[]^_`{|}~"
@@ -10,6 +13,7 @@ class ViewController: UIViewController {
     private let passwordLetters4:NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&'()*+-./:;<=>?@[]^_`{|}~"
     
     private var alertController: UIAlertController!
+    var numPickerData:String = "4"
     
     @IBOutlet weak var passwordLabel: UILabel!
     @IBOutlet weak var numToggle: UISwitch!
@@ -20,6 +24,7 @@ class ViewController: UIViewController {
     @IBAction func teppedPasswordCreate(_ sender: Any) {
         UIPasteboard.general.string = passwordLabel.text
         alert(title:"メッセージ", message:"クリップボードにパスワードを保存しました。")
+        print("numPickerData",numPickerData)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +34,7 @@ class ViewController: UIViewController {
         symbolToggle.isOn = false
         numPicker.delegate = self
         numPicker.dataSource = self
-        passwordLabel.text = "pass"
+        passwordLabel.text = passwordCreate(length: 4, letters: passwordLetters1)
         
     }
     func passwordCreate(length: Int,letters:NSString) -> String {
@@ -44,10 +49,10 @@ class ViewController: UIViewController {
     }
     
     func alert(title:String, message:String) {
-            alertController = UIAlertController(title: title,message: message,preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK",style: .default,handler: nil))
-            present(alertController, animated: true)
-        }
+        alertController = UIAlertController(title: title,message: message,preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK",style: .default,handler: nil))
+        present(alertController, animated: true)
+    }
 }
 
 
@@ -64,20 +69,20 @@ extension ViewController:UIPickerViewDelegate, UIPickerViewDataSource{
         return nums[row]
     }
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        //選択されているPickerのデータを取得
-        let numPickerData = self.pickerView(numPicker, titleForRow: numPicker.selectedRow(inComponent: 0), forComponent: 0)
-        if let numPickerData = numPickerData{
-                    let numPickerDataInt:Int = Int(numPickerData)!
-            if self.numToggle.isOn && self.symbolToggle.isOn{
-                self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters4)
-            }else if self.symbolToggle.isOn{
-                self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters3)
-            }else if self.numToggle.isOn{
-                self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters2)
-            }else{
-                self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters1)
-            }
+        //選択されているPickerのデータを取得 nilの場合は""
+        numPickerData = self.pickerView(numPicker, titleForRow: numPicker.selectedRow(inComponent: 0), forComponent: 0) ?? ""
+        //numPickerDataをIntに変換
+        let numPickerDataInt:Int = Int(numPickerData)!
+        if self.numToggle.isOn && self.symbolToggle.isOn{
+            self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters4)
+        }else if self.symbolToggle.isOn{
+            self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters3)
+        }else if self.numToggle.isOn{
+            self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters2)
+        }else{
+            self.passwordLabel.text = passwordCreate(length: numPickerDataInt, letters: self.passwordLetters1)
         }
-
+        
+        
     }
 }
